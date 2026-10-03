@@ -8,9 +8,14 @@
     "start": "next start"
   },
   "dependencies": {
+    "@sanity/icons": "^5.2.3",
+    "@sanity/vision": "^6.17.0",
     "next": "16.3.7",
+    "next-sanity": "^13.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "sanity": "^6.17.0",
+    "sanity-plugin-workflow": "^3.0.47"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
