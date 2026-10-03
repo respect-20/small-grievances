@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {client, writeClient} from '@/sanity/lib/client'
+import {syncWorkflowState} from '@/sanity/lib/workflow'
 
 interface RulingResult {
   verdict: 'guilty' | 'not-guilty' | 'both-at-fault' | 'dismissed'
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
 
     // Move to "under review" so the workflow board reflects the agent picking it up.
     await writeClient.patch(grievanceId).set({status: 'under-review'}).commit()
+    await syncWorkflowState(grievanceId, 'under-review')
 
     try {
       const result = await askCommissioner({
@@ -139,11 +141,13 @@ export async function POST(req: NextRequest) {
         .patch(grievanceId)
         .set({status: 'ruling-issued', ruling: {_type: 'reference', _ref: ruling._id}})
         .commit()
+      await syncWorkflowState(grievanceId, 'ruling-issued')
 
       return NextResponse.json({ruling})
     } catch (err) {
       // Revert to "filed" so the case isn't stuck showing "under review" with no ruling.
       await writeClient.patch(grievanceId).set({status: 'filed'}).commit()
+      await syncWorkflowState(grievanceId, 'filed')
       throw err
     }
   } catch (err) {

@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {client, writeClient} from '@/sanity/lib/client'
+import {syncWorkflowState} from '@/sanity/lib/workflow'
 
 export async function GET() {
   try {
@@ -43,6 +44,8 @@ export async function POST(req: NextRequest) {
       status: 'filed',
       filedAt: new Date().toISOString(),
     })
+
+    await syncWorkflowState(grievance._id, 'filed')
 
     return NextResponse.json({grievance})
   } catch (err) {
